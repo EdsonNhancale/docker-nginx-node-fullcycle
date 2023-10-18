@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  nodejs:
+    build: 
+      context: ./node
+    container_name: nodejsserver
+    hostname: nodejsserver
+    image: edsonnhancale/node-nginx
+    entrypoint: dockerize -wait tcp://db:3306 -timeout 20s docker-entrypoint.sh
+    restart: always
+    tty: true
+    
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./node:/usr/src/app
+    depends_on:
+      - db
+    networks:
+      - nginx_node
+  
+  db:
+    image: mysql:5.7
+    command: --innodb-use-native-aio=0
+    container_name: db
+    restart: always
+    tty: true
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=nodedb
+      - MYSQL_ROOT_PASSWORD=root
+    networks:
+      - nginx_node 
+    
+  nginx:
+    build:
+      context: ./nginx
+    container_name: nginxproxy
+    hostname: nginxproxy
+    image: edsonnhancale/nginx-proxy
+    ports:
+      - "8080:80"
+    tty: true
+    depends_on:
+      - nodejs
+    networks:
+      - nginx_node
+
+networks:
+  nginx_node:
+    driver: bridge
