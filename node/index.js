@@ -26,7 +26,7 @@ connection.connect(function (err) {
 });
 
 app.get('/', (req, res) => {
-    res.send(`<h1>Full Cycle Rocks!v2</h1>`+JSON.stringify(names))
+    res.send(`<h1>Full Cycle Rocks!</h1>`+JSON.stringify(names))
 })
 
 app.listen(port, () => {
